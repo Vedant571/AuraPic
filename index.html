@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Pic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="images/IMG-20250224-WA0033.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none; 
+            color: inherit; 
+        }
+
+        a:visited {
+            color: inherit; 
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem 0;
+            width: 100%;
+            height: 120px;
+            text-align: center;
+            font-size: 3rem;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(-50px);
+            animation: slideDown 1s ease-in-out forwards;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-image: url(./images/pexels-photo-7977442.jpeg);
+            background-size: cover;
+            background-repeat: no-repeat;
+            font-family: "Dancing Script", serif;
+        }
+
+        @keyframes slideDown {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #1e1e1e;
+            padding: 10px 20px;
+            width: 100%;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .nav a:hover {
+            color: #ffcc00;
+            transform: scale(1.1);
+        }
+
+        .search-box {
+            border: 1px solid white;
+            background: transparent;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        .auth-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .category-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .category {
+            padding: 10px 20px;
+            border-radius: 20px;
+            background-color: white;
+            font-size: 16px;
+            color: black;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s, text-shadow 0.3s;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .category:hover {
+            transform: scale(1.1);
+            background: #ddd;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .category.active {
+            background: #ffcc00;
+            color: #1e1e1e;
+        }
+
+        .gallery {
+            column-count: 3;
+            column-gap: 15px;
+            padding: 20px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .image-card {
+            width: 100%;
+            margin-bottom: 15px;
+            break-inside: avoid;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #222;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .image-card:hover {
+            transform: scale(1.03);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .crop-btn {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            transition: background 0.3s;
+        }
+
+        .image-card:hover .crop-btn {
+            display: block;
+        }
+
+        .crop-btn:hover {
+            background: #ffcc00;
+        }
+
+        .crop-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 10;
+        }
+
+        .crop-box {
+            position: absolute;
+            border: 2px dashed #ffcc00;
+            background: rgba(255, 204, 0, 0.2);
+            cursor: move;
+        }
+
+        .crop-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffcc00;
+            cursor: nwse-resize;
+            right: -5px;
+            bottom: -5px;
+        }
+
+        .crop-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .crop-controls button {
+            background: #ffcc00;
+            color: #1e1e1e;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .crop-controls button:hover {
+            background: #e6b800;
+        }
+
+        /* About Section Styling */
+        .about-section {
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px 20px;
+            color: #fff;
+            text-align: center;
+            background-color: #1e1e1e;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .about-section h2 {
+            font-size: 2.5rem;
+            font-family: "Dancing Script", serif;
+            color: #ffcc00;
+            margin-bottom: 20px;
+        }
+
+        .about-section p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #ddd;
+        }
+
+        @media (max-width: 1024px) {
+            .gallery {
+                column-count: 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                column-count: 1;
+            }
+            .about-section h2 {
+                font-size: 2rem;
+            }
+            .about-section p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>Aura Pic</header>
+    <nav class="nav">
+        <div class="logo"><a href="index.html"><img src="images/IMG-20250224-WA0033.jpg" height="80px" alt="Aura Pic Logo"></a></div>
+        <div>
+            <a href="index.html">Home</a>
+            <a href="features.html">Features</a>
+            <a href="#section2">Pricing</a>
+            <a href="faqs.html">FAQs</a>
+            <a href="about.html">About</a>
+        </div>
+        <input type="search" class="search-box" placeholder="Search...">
+        <div class="auth-links">
+            <a href="login.html">Login</a>
+            <a href="signup.html">Sign Up</a>
+        </div>
+    </nav>
+    <div class="category-container">
+        <div class="category" data-category="all">ALL</div>
+        <div class="category" data-category="nature">Nature Wallpaper</div>
+        <div class="category" data-category="galaxy">Galaxy Wallpaper</div>
+        <div class="category" data-category="4k">4K Wallpaper</div>
+        <div class="category" data-category="cool">Cool Wallpaper</div>
+        <div class="category" data-category="mobile">Mobile Wallpaper</div>
+        <div class="category" data-category="desktop">Desktop Backgrounds</div>
+    </div>
+    <div class="gallery" id="imageGallery"></div>
+
+    <!-- New About Section -->
+    <section id="about" class="about-section">
+        <h2>About Aura Pic</h2>
+        <p>Welcome to <strong>Aura Pic</strong>, your ultimate destination for breathtaking wallpapers and stunning photography. We believe that every image tells a story, and our mission is to bring the beauty of the world to your screens—whether it’s your mobile device, desktop, or tablet. From serene nature landscapes to mesmerizing galaxy vistas, our curated collection offers something for everyone.</p>
+        <p>At Aura Pic, we’re passionate about quality and creativity. Our team carefully selects and enhances each image to ensure you experience visuals that inspire and captivate. Whether you’re here for free downloads or exploring our premium high-resolution options, we’re committed to making your journey through our gallery unforgettable.</p>
+        <p>Join us in celebrating the art of photography and let Aura Pic transform your digital space with elegance and wonder.</p>
+    </section>
+
+    <div id="section2" class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Free</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">$0<small class="text-body-secondary fw-light">/mo</small></h1>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li></li>
+                        <li>Low Quality</li>
+                        <li>Low Selection of Photos</li>
+                    </ul>
+                    <button type="button" class="w-100 btn btn-lg btn-outline-primary">Sign up for free</button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">High</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">$15<small class="text-body-secondary fw-light">/mo</small></h1>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>High Quality Images</li>
+                        <li>2 Devices</li>
+                        <li>High Selection of Photos</li>
+                        <li>Help Center Access</li>
+                    </ul>
+                    <button type="button" class="w-100 btn btn-lg btn-primary">Get started</button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm border-primary">
+                <div class="card-header py-3 text-bg-primary border-primary">
+                    <h4 class="my-0 fw-normal">High++</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">$29<small class="text-body-secondary fw-light">/mo</small></h1>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>High++ Quality Images</li>
+                        <li>4 Devices</li>
+                        <li>High++ Selection of Photos</li>
+                        <li>Help Center Access</li>
+                    </ul>
+                    <button type="button" class="w-100 btn btn-lg btn-primary">Contact us</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <footer class="py-5 text-light">
+            <div class="row">
+                <div class="col-6 col-md-2 mb-3">
+                    <h5>Company</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2"><a href="about.html" class="nav-link p-0 text-light">About</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Blog</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Help Center</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Report Content</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Become a Hero</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-2 mb-3">
+                    <h5>Wallpaper Gallery</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Free Photos</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Popular</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Collections</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Challenges</a></li>
+                        <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Other apps</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-5 offset-md-1 mb-3">
+                    <form>
+                        <h5>Subscribe to our Photo Gallery to Explore the World through Quality Images</h5>
+                        <p>Monthly News of what's new and exciting from us.</p>
+                        <div class="d-flex flex-column flex-sm-row w-100 gap-2">
+                            <label for="newsletter1" class="visually-hidden">Email address</label>
+                            <input id="newsletter1" type="email" class="form-control" placeholder="Enter your email" required>
+                            <button class="btn btn-primary" type="submit">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between py-4 my-4 border-top">
+                <p class="text-light">© 2024 Photo Gallery, Inc. All rights reserved.</p>
+                <ul class="list-unstyled d-flex">
+                    <li class="ms-3"><a class="link-light" href="#"><svg class="bi" width="24" height="24" style="fill: white;"><use xlink:href="#twitter"></use></svg></a></li>
+                    <li class="ms-3"><a class="link-light" href="#"><svg class="bi" width="24" height="24" style="fill: white;"><use xlink:href="#instagram"></use></svg></a></li>
+                    <li class="ms-3"><a class="link-light" href="#"><svg class="bi" width="24" height="24" style="fill: white;"><use xlink:href="#facebook"></use></svg></a></li>
+                </ul>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        const images = [
+            "IMG-20250224-WA0009.jpg",
+            "IMG-20250224-WA0026.jpg",
+            "IMG-20250224-WA0025.jpg",
+            "IMG-20250224-WA0024.jpg",
+            "IMG-20250224-WA0021.jpg",
+            "IMG-20250224-WA0020.jpg",
+            "IMG-20250224-WA0019.jpg",
+            "IMG-20250224-WA0018.jpg",
+            "IMG-20250224-WA0016.jpg",
+            "IMG-20250224-WA0000.jpg",
+            "IMG-20250224-WA0017.jpg",
+            "IMG-20250224-WA0014.jpg",
+            "IMG-20250224-WA0012.jpg",
+            "IMG-20250224-WA0011.jpg",
+            "IMG-20250224-WA0015.jpg",
+            "IMG-20250224-WA0008.jpg",
+            "IMG-20250224-WA0007.jpg",
+            "IMG-20250224-WA0006.jpg",
+            "IMG-20250224-WA0023.jpg",
+            "IMG-20250224-WA0022.jpg",
+            "IMG-20250224-WA0013.jpg",
+            "IMG-20250224-WA0010.jpg",
+            "IMG-20250224-WA0005.jpg",
+            "IMG-20250224-WA0004.jpg",
+            "IMG-20250224-WA0003.jpg",
+            "IMG-20250224-WA0002.jpg",
+        ];
+
+        const categories = {
+            all: images, // Full list of images for "ALL" category
+            nature: ["IMG-20250224-WA0009.jpg", "IMG-20250224-WA0026.jpg", "IMG-20250224-WA0025.jpg", "IMG-20250224-WA0024.jpg"],
+            galaxy: ["IMG-20250224-WA0021.jpg", "IMG-20250224-WA0020.jpg", "IMG-20250224-WA0019.jpg"],
+            "4k": ["IMG-20250224-WA0018.jpg", "IMG-20250224-WA0016.jpg", "IMG-20250224-WA0000.jpg", "IMG-20250224-WA0017.jpg"],
+            cool: ["IMG-20250224-WA0014.jpg", "IMG-20250224-WA0012.jpg", "IMG-20250224-WA0011.jpg"],
+            mobile: ["IMG-20250224-WA0015.jpg", "IMG-20250224-WA0008.jpg", "IMG-20250224-WA0007.jpg", "IMG-20250224-WA0006.jpg"],
+            desktop: ["IMG-20250224-WA0023.jpg", "IMG-20250224-WA0022.jpg", "IMG-20250224-WA0013.jpg"]
+        };
+
+        const gallery = document.getElementById("imageGallery");
+        let activeCrop = null;
+
+        function displayImages(imageList) {
+            gallery.innerHTML = ""; // Clear current gallery
+            imageList.forEach(image => {
+                const imageCard = document.createElement("div");
+                imageCard.classList.add("image-card");
+
+                const img = document.createElement("img");
+                img.src = `images/${image}`;
+                img.alt = "Wallpaper";
+
+                const cropBtn = document.createElement("button");
+                cropBtn.classList.add("crop-btn");
+                cropBtn.textContent = "Crop";
+                cropBtn.addEventListener("click", () => toggleCrop(imageCard, img, image));
+
+                const overlay = document.createElement("div");
+                overlay.classList.add("crop-overlay");
+
+                const cropBox = document.createElement("div");
+                cropBox.classList.add("crop-box");
+
+                const handle = document.createElement("div");
+                handle.classList.add("crop-handle");
+                cropBox.appendChild(handle);
+
+                const controls = document.createElement("div");
+                controls.classList.add("crop-controls");
+                controls.innerHTML = `
+                    <button id="downloadCrop">Download</button>
+                    <button id="cancelCrop">Cancel</button>
+                `;
+
+                overlay.appendChild(cropBox);
+                overlay.appendChild(controls);
+                imageCard.appendChild(img);
+                imageCard.appendChild(cropBtn);
+                imageCard.appendChild(overlay);
+                gallery.appendChild(imageCard);
+            });
+        }
+
+        function toggleCrop(card, img, filename) {
+            const overlay = card.querySelector(".crop-overlay");
+            if (activeCrop && activeCrop !== card) {
+                activeCrop.querySelector(".crop-overlay").style.display = "none";
+            }
+
+            if (overlay.style.display === "block") {
+                overlay.style.display = "none";
+                activeCrop = null;
+            } else {
+                overlay.style.display = "block";
+                activeCrop = card;
+                initCrop(card, img, filename);
+            }
+        }
+
+        function initCrop(card, img, filename) {
+            const overlay = card.querySelector(".crop-overlay");
+            const cropBox = card.querySelector(".crop-box");
+            const handle = cropBox.querySelector(".crop-handle");
+            const downloadBtn = card.querySelector("#downloadCrop");
+            const cancelBtn = card.querySelector("#cancelCrop");
+
+            let isDragging = false;
+            let isResizing = false;
+            let startX, startY, startWidth, startHeight, startLeft, startTop;
+
+            img.onload = () => {
+                const imgRect = img.getBoundingClientRect();
+                cropBox.style.width = `${imgRect.width * 0.5}px`;
+                cropBox.style.height = `${imgRect.height * 0.5}px`;
+                cropBox.style.left = `${imgRect.width * 0.25}px`;
+                cropBox.style.top = `${imgRect.height * 0.25}px`;
+            };
+
+            if (img.complete) {
+                img.onload();
+            }
+
+            cropBox.addEventListener("mousedown", (e) => {
+                if (e.target === handle) return;
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = parseFloat(cropBox.style.left);
+                startTop = parseFloat(cropBox.style.top);
+            });
+
+            handle.addEventListener("mousedown", (e) => {
+                isResizing = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startWidth = parseFloat(cropBox.style.width);
+                startHeight = parseFloat(cropBox.style.height);
+                e.preventDefault();
+            });
+
+            document.addEventListener("mousemove", (e) => {
+                const imgRect = img.getBoundingClientRect();
+                if (isDragging) {
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    let newLeft = startLeft + dx;
+                    let newTop = startTop + dy;
+
+                    newLeft = Math.max(0, Math.min(newLeft, imgRect.width - parseFloat(cropBox.style.width)));
+                    newTop = Math.max(0, Math.min(newTop, imgRect.height - parseFloat(cropBox.style.height)));
+
+                    cropBox.style.left = `${newLeft}px`;
+                    cropBox.style.top = `${newTop}px`;
+                } else if (isResizing) {
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    let newWidth = startWidth + dx;
+                    let newHeight = startHeight + dy;
+
+                    newWidth = Math.max(20, Math.min(newWidth, imgRect.width - parseFloat(cropBox.style.left)));
+                    newHeight = Math.max(20, Math.min(newHeight, imgRect.height - parseFloat(cropBox.style.top)));
+
+                    cropBox.style.width = `${newWidth}px`;
+                    cropBox.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener("mouseup", () => {
+                isDragging = false;
+                isResizing = false;
+            });
+
+            downloadBtn.addEventListener("click", () => {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                const cropRect = cropBox.getBoundingClientRect();
+                const imgRect = img.getBoundingClientRect();
+
+                const scaleX = img.naturalWidth / imgRect.width;
+                const scaleY = img.naturalHeight / imgRect.height;
+
+                canvas.width = cropRect.width * scaleX;
+                canvas.height = cropRect.height * scaleY;
+
+                ctx.drawImage(
+                    img,
+                    (cropRect.left - imgRect.left) * scaleX,
+                    (cropRect.top - imgRect.top) * scaleY,
+                    cropRect.width * scaleX,
+                    cropRect.height * scaleY,
+                    0, 0,
+                    canvas.width,
+                    canvas.height
+                );
+
+                canvas.toBlob(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `cropped_${filename}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    overlay.style.display = "none";
+                    activeCrop = null;
+                }, "image/jpeg");
+            });
+
+            cancelBtn.addEventListener("click", () => {
+                overlay.style.display = "none";
+                activeCrop = null;
+            });
+        }
+
+        // Category filtering
+        const categoryButtons = document.querySelectorAll(".category");
+        categoryButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const category = button.getAttribute("data-category");
+                categoryButtons.forEach(btn => btn.classList.remove("active"));
+                button.classList.add("active");
+                displayImages(categories[category]);
+            });
+        });
+
+        // Display initial images ("ALL" category)
+        displayImages(categories.all);
+        document.querySelector('.category[data-category="all"]').classList.add("active");
+    </script>
+</body>
+</html>
